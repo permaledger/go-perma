@@ -114,9 +114,26 @@ func ApplyTransaction(config *ChainConfig, bc *BlockChain, gp *GasPool, statedb 
 // mining reward. The total reward consists of the static block reward
 // and rewards for included uncles. The coinbase of each uncle block is
 // also rewarded.
+// TODO fix tests
 func AccumulateRewards(statedb *state.StateDB, header *types.Header, uncles []*types.Header) {
-	reward := new(big.Int).Set(BlockReward) // TODO compute closed form of Reward(N)
-	// Uncles are not rewarded natively. TODO remove uncle validation attempts from default client.
+	/**  block reward pseudocode
+	max_supply := new(big.Int).Set(1e+18)
+	decay := 1 - (1 / 500000)
+	undistributed := 1e+18 * decay**header.Number
+	reward := undistributed / 500000;
+	*/
+	/** bigint-correct pseudocode ?
+	unallocated := new(big.Int).Set(1e+18)
+	decay_factor := 500000
+	reward := new(big.Int)
+	for i := range header.Number + 1 {
+		reward.Div(unallocated, decay_factor)
+		unallocated.Sub(unallocated, reward)
+	}
+	*/
+	reward := new(big.Int).Set(BlockReward)
+	// Uncles are not rewarded natively.
+	// TODO remove uncle validation attempts from default client.
 	/*
 	r := new(big.Int)
 	for _, uncle := range uncles {
