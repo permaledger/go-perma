@@ -115,7 +115,9 @@ func ApplyTransaction(config *ChainConfig, bc *BlockChain, gp *GasPool, statedb 
 // and rewards for included uncles. The coinbase of each uncle block is
 // also rewarded.
 func AccumulateRewards(statedb *state.StateDB, header *types.Header, uncles []*types.Header) {
-	reward := new(big.Int).Set(BlockReward)
+	reward := new(big.Int).Set(BlockReward) // TODO compute closed form of Reward(N)
+	// Uncles are not rewarded natively. TODO remove uncle validation attempts from default client.
+	/*
 	r := new(big.Int)
 	for _, uncle := range uncles {
 		r.Add(uncle.Number, big8)
@@ -127,5 +129,6 @@ func AccumulateRewards(statedb *state.StateDB, header *types.Header, uncles []*t
 		r.Div(BlockReward, big32)
 		reward.Add(reward, r)
 	}
+	*/
 	statedb.AddBalance(header.Coinbase, reward)
 }
