@@ -28,8 +28,11 @@ import (
 )
 
 var (
+	big1  = big.NewInt(1)
 	big8  = big.NewInt(8)
 	big32 = big.NewInt(32)
+	big500k = big.NewInt(500000)
+	bigFEE = big.NewInt(1e+18) // TODO constant
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -122,16 +125,19 @@ func AccumulateRewards(statedb *state.StateDB, header *types.Header, uncles []*t
 	undistributed := 1e+18 * decay**header.Number
 	reward := undistributed / 500000;
 	*/
-	/** bigint-correct pseudocode ?
-	unallocated := new(big.Int).Set(1e+18)
-	decay_factor := 500000
+
+	//** bigint-correct pseudocode ?
+	unallocated := bigFEE; // TODO constant
+	decay_factor := big500k; // TODO constant
 	reward := new(big.Int)
-	for i := range header.Number + 1 {
+	for i := 0; uint64(i) < header.Number.Uint64()+1; i++ {
 		reward.Div(unallocated, decay_factor)
 		unallocated.Sub(unallocated, reward)
 	}
-	*/
-	reward := new(big.Int).Set(BlockReward)
+	//*/
+
+	// reward := new(big.Int).Set(BlockReward)
+
 	// Uncles are not rewarded natively.
 	// TODO remove uncle validation attempts from default client.
 	/*
