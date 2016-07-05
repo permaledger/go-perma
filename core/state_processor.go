@@ -28,8 +28,11 @@ import (
 )
 
 var (
+	big1  = big.NewInt(1)
 	big8  = big.NewInt(8)
 	big32 = big.NewInt(32)
+	big500k = big.NewInt(500000)
+	bigFEE = big.NewInt(1e+18) // TODO constant
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -114,8 +117,30 @@ func ApplyTransaction(config *ChainConfig, bc *BlockChain, gp *GasPool, statedb 
 // mining reward. The total reward consists of the static block reward
 // and rewards for included uncles. The coinbase of each uncle block is
 // also rewarded.
+// TODO fix tests
 func AccumulateRewards(statedb *state.StateDB, header *types.Header, uncles []*types.Header) {
-	reward := new(big.Int).Set(BlockReward)
+	/**  block reward pseudocode
+	max_supply := new(big.Int).Set(1e+18)
+	decay := 1 - (1 / 500000)
+	undistributed := 1e+18 * decay**header.Number
+	reward := undistributed / 500000;
+	*/
+
+	//** bigint-correct pseudocode ?
+	unallocated := bigFEE; // TODO constant
+	decay_factor := big500k; // TODO constant
+	reward := new(big.Int)
+	for i := 0; uint64(i) < header.Number.Uint64()+1; i++ {
+		reward.Div(unallocated, decay_factor)
+		unallocated.Sub(unallocated, reward)
+	}
+	//*/
+
+	// reward := new(big.Int).Set(BlockReward)
+
+	// Uncles are not rewarded natively.
+	// TODO remove uncle validation attempts from default client.
+	/*
 	r := new(big.Int)
 	for _, uncle := range uncles {
 		r.Add(uncle.Number, big8)
@@ -127,5 +152,6 @@ func AccumulateRewards(statedb *state.StateDB, header *types.Header, uncles []*t
 		r.Div(BlockReward, big32)
 		reward.Add(reward, r)
 	}
+	*/
 	statedb.AddBalance(header.Coinbase, reward)
 }
