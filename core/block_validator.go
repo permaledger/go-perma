@@ -139,9 +139,9 @@ func (v *BlockValidator) ValidateState(block, parent *types.Block, statedb *stat
 // error if any of the included uncle headers were invalid. It returns an error
 // if the validation failed.
 func (v *BlockValidator) VerifyUncles(block, parent *types.Block) error {
-	// validate that there at most 2 uncles included in this block
-	if len(block.Uncles()) > 2 {
-		return ValidationError("Block can only contain maximum 2 uncles (contained %v)", len(block.Uncles()))
+	// validate that there at most 0 uncles included in this block
+	if len(block.Uncles()) > 0 {
+		return ValidationError("Block can only contain maximum 0 uncles (contained %v)", len(block.Uncles()))
 	}
 
 	uncles := set.New()
@@ -296,6 +296,7 @@ func calcDifficultyHomestead(time, parentTime uint64, parentNumber, parentDiff *
 	}
 
 	// for the exponential factor
+	/* TODO fix test
 	periodCount := new(big.Int).Add(parentNumber, common.Big1)
 	periodCount.Div(periodCount, ExpDiffPeriod)
 
@@ -306,6 +307,7 @@ func calcDifficultyHomestead(time, parentTime uint64, parentNumber, parentDiff *
 		y.Exp(common.Big2, y, nil)
 		x.Add(x, y)
 	}
+	*/
 
 	return x
 }
@@ -328,6 +330,7 @@ func calcDifficultyFrontier(time, parentTime uint64, parentNumber, parentDiff *b
 		diff.Set(params.MinimumDifficulty)
 	}
 
+	/* TODO fix test
 	periodCount := new(big.Int).Add(parentNumber, common.Big1)
 	periodCount.Div(periodCount, ExpDiffPeriod)
 	if periodCount.Cmp(common.Big1) > 0 {
@@ -337,6 +340,7 @@ func calcDifficultyFrontier(time, parentTime uint64, parentNumber, parentDiff *b
 		diff.Add(diff, expDiff)
 		diff = common.BigMax(diff, params.MinimumDifficulty)
 	}
+	*/
 
 	return diff
 }
